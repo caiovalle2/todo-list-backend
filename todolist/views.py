@@ -33,6 +33,9 @@ class TaskView(APIView):
     def patch(self, request, id):
         task = Task.objects.filter(id=id).first()
         if task:
+            if task.assigned_to != request.user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
             serializer = TaskSerializer(task, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
@@ -43,6 +46,9 @@ class TaskView(APIView):
     def delete(self, request, id):
         task = Task.objects.filter(id=id).first()
         if task:
+            if task.assigned_to != request.user:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
             task.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         
